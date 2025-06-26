@@ -13,24 +13,27 @@ login_manager = LoginManager(app)
 
 DATABASE_PATH = os.getenv("DATABASE_PATH")
 
-with sqlite3.connect(DATABASE_PATH) as db:
-    cursor = db.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS users(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        login TEXT UNIQUE,
-        password_hash TEXT)""")
+def init_db():
+    with sqlite3.connect(DATABASE_PATH) as db:
+        cursor = db.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS games(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cover TEXT,
-        title TEXT,
-        price REAL,
-        raiting REAL)
-    """)
+        cursor.execute("""CREATE TABLE IF NOT EXISTS users(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            login TEXT UNIQUE,
+            password_hash TEXT)""")
 
-    db.commit()
+        cursor.execute("""CREATE TABLE IF NOT EXISTS games(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cover TEXT,
+            title TEXT,
+            price REAL,
+            raiting REAL)
+        """)
 
+        db.commit()
+
+init_db()
 
 class User(UserMixin):
     def __init__(self, id):
