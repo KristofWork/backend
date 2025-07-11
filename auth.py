@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from user import User
 from config import DATABASE_PATH
 import sqlite3
+import logging
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -11,13 +12,15 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        logging.debug("Пользователь пытается зарегестрироваться")
         form_data = request.form
         login = form_data["login"]
         password = form_data["password"]
         repeat_password = form_data["repeat-password"]
 
         if password != repeat_password:
-            return "Пароли не совпали"
+            logging.warning("Регистрация: пароли не совпадают")
+            return "Пароли не совпали", 400
 
         password_hash = generate_password_hash(password)
 
@@ -28,8 +31,9 @@ def register():
                 [login, password_hash],
             )
             db.commit()
-        return "Зарегестрировались!"
-    return render_template("register.html")
+        logging.info(f"Новый пользователь зарегестрирован {login}")
+        return "Зарегестрировались!", 200
+    return render_template("register.html"), 200
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
